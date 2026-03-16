@@ -5,10 +5,9 @@ from langchain_core.messages import HumanMessage, SystemMessage, AIMessage
 from .state import AgentState
 from .tools import tools, get_flight_status, get_rebooking_options, get_passenger_credits
 
-SYSTEM_PROMPT = """You are a helpful Jetstar Airways customer service assistant.
-You help passengers with flight status, rebooking options, and travel credit queries.
-Always use the available tools to retrieve accurate information.
-Never guess or fabricate flight details."""
+SYSTEM_PROMPT = """You are a Jetstar Airways assistant.
+Use tools to answer flight status, rebooking, and travel credit queries.
+Never guess — always retrieve accurate information from tools."""
 
 def get_llm():
     return ChatOpenAI(model="gpt-4o-mini", temperature=0).bind_tools(tools)
@@ -35,11 +34,11 @@ def tool_node(state: AgentState) -> dict:
     query = state["query"]
     result = "Could not execute tool."
     if tool_name == "get_flight_status":
-        match = re.search(r'JQ\d{3,4}', query.upper())
+        match = re.search(r'JQ\d{3,4}', query.upper().replace(" ", ""))
         flight = match.group() if match else "JQ101"
         result = get_flight_status.invoke({"flight_number": flight})
     elif tool_name == "get_rebooking_options":
-        match = re.search(r'JQ\d{3,4}', query.upper())
+        match = re.search(r'JQ\d{3,4}', query.upper().replace(" ", ""))
         flight = match.group() if match else "JQ303"
         result = get_rebooking_options.invoke({"flight_number": flight})
     elif tool_name == "get_passenger_credits":
