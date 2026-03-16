@@ -25,7 +25,7 @@ def get_flight_status(flight_number: str) -> str:
 @tool
 def get_rebooking_options(flight_number: str) -> str:
     """Get available rebooking options for a delayed or cancelled Jetstar flight. Use this when a passenger needs alternative flight options."""
-    flight = flight_number.upper().strip()
+    flight = flight_number.upper().strip().replace(" ", "")
     data = FLIGHT_DATA.get(flight)
     if not data:
         return f"No flight found for '{flight}'."
