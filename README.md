@@ -83,3 +83,11 @@ python3 main.py
 - LangSmith observability for prod
 - Run multiple passengers at once with async
 - Keep conversations between sessions
+
+## Known limitations
+
+- Mock data only — no connection to live Jetstar systems
+- Flight number must be in JQ + 3-4 digit format
+- Passenger IDs must match JS001, JS002, JS003
+- Single passenger per query — no batch processing yet
+- No session memory between separate runs
