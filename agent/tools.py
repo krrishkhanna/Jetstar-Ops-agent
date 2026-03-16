@@ -4,6 +4,12 @@ FLIGHT_DATA = {
     "JQ101": {"status": "On time", "departure": "06:00", "arrival": "08:30", "route": "SYD → MEL"},
     "JQ202": {"status": "Delayed 90 minutes", "departure": "11:30", "arrival": "14:15", "route": "MEL → BNE"},
     "JQ303": {"status": "Cancelled", "departure": "N/A", "arrival": "N/A", "route": "SYD → DPS"},
+    "JQ505": {
+        "status": "Delayed 45 minutes — baggage handling issue",
+        "departure": "19:15",
+        "arrival": "21:30",
+        "route": "MEL → SYD",
+    },
     "JQ404": {"status": "On time", "departure": "14:45", "arrival": "17:00", "route": "BNE → SYD"},
 }
 
