@@ -1,80 +1,85 @@
 # Jetstar Ops Agent
 
-A stateful AI agent built with LangGraph that handles passenger queries for Jetstar Airways — flight status, rebooking options, and travel credits.
+An AI agent that helps Jetstar passengers check flight status, find rebooking options, and look up travel credits. Built with LangGraph.
 
-Built to explore LangGraph's stateful agent architecture using aviation as the domain. Aviation's real-time constraints and operational complexity make it an ideal domain for testing agentic reasoning and conditional routing.
+I made this to learn how LangGraph handles back-and-forth conversations. Airlines are messy—lots of real-time stuff, edge cases, and decisions to make. Perfect for testing an agent.
 
-## What it does
+## How it works
 
-Takes a natural language passenger query → agent reasons about which tool to call → tool executes → agent reads result → formats a clean answer. Runs in a loop with a safety limit of 5 iterations.
+You ask a question → the agent figures out which tool it needs → runs it → reads what happened → keeps going if it needs to. Max 5 loops to stay safe.
 
-## Architecture
 ```
-passenger query
+your question
       ↓
- [agent node]     thinks, decides which tool to call
-      ↓  ← conditional routing via should_continue()
- [tool node]      executes the chosen tool
+ [agent]          hmm, what should I do?
       ↓
- [agent node]     reads tool result, decides if done
+ [tool]           okay, doing it
       ↓
-[final node]      formats clean response for passenger
+ [agent]          got it, done?
       ↓
-  final answer
+ [final]          here's your answer
+      ↓
+  response
 ```
 
-## Tech stack
+## What's inside
 
-- **LangGraph** — stateful graph with conditional routing
-- **LangChain** — tool definitions and LLM integration
-- **GPT-4o-mini** — reasoning and response formatting
+- **LangGraph** — handles the back-and-forth, routing to tools
+- **LangChain** — tool setup and LLM stuff
+- **GPT-4o-mini** — the brain
 - **Python 3.10+**
 
-## Project structure
+## Files
+
 ```
 jetstar-ops-agent/
 ├── agent/
-│   ├── __init__.py   # package entry point
-│   ├── state.py      # AgentState TypedDict
-│   ├── tools.py      # 3 tools with @tool decorator
-│   ├── nodes.py      # agent_node, tool_node, final_answer_node
-│   └── graph.py      # StateGraph with conditional routing
+│   ├── __init__.py
+│   ├── state.py          # conversation state
+│   ├── tools.py          # the 3 tools
+│   ├── nodes.py          # agent, tool, final
+│   └── graph.py          # wires it together
+├── tests/
+│   ├── __init__.py
+│   ├── test_state.py
+│   ├── test_tools.py
+│   ├── test_nodes.py
+│   └── test_graph.py
 ├── main.py
 ├── requirements.txt
 └── .env.example
 ```
 
-## How to run
+## Get it running
+
 ```bash
 git clone https://github.com/krrishkhanna/Jetstar-Ops-agent
 cd Jetstar-Ops-agent
 python -m venv venv && source venv/bin/activate
 pip install -r requirements.txt
-cp .env.example .env   # add your OpenAI API key
+cp .env.example .env   # put your OpenAI key here
 python3 main.py
 ```
 
-## Example queries
+## Examples
+
 ```
-"What is the status of Jetstar flight JQ202?"
-"My flight JQ303 was cancelled. What are my rebooking options?"
-"Check travel credits for passenger JS003"
+"What's the status on JQ202?"
+"JQ303 got cancelled. What can I do?"
+"What travel credits do I have? (JS003)"
 ```
 
-## Design decisions
+## Why I built it this way
 
-**Why LangGraph over a plain LangChain chain?**
-A chain is linear — A → B → C → done. This agent needs to loop: call a tool, read the result, decide if it needs another tool, loop back. That cycle is only possible with LangGraph's directed graph structure.
+**LangGraph instead of a chain?** Chains go step-by-step, done. This needs loops. Call a tool, see what it says, maybe call another, rinse and repeat. That's a graph.
 
-**Why three separate nodes?**
-Single responsibility. agent_node thinks. tool_node acts. final_answer_node communicates. Each is independently testable and easy to extend — adding a 4th tool only requires changes to tools.py.
+**Why three separate nodes?** Keeps things clean. One thinks, one acts, one talks to you. Easier to test, easier to add more tools later.
 
-**Why an iteration limit?**
-Production safety. A buggy routing function could loop forever. The limit guarantees the agent always terminates.
+**Why cap it at 5 loops?** Don't want a broken routing function hanging forever. This kills it if it goes sideways.
 
-## What I would add next
+## Maybe later
 
-- MCP server wrapping the tools so any model can use them
-- LangSmith tracing for production observability
-- Async support via asyncio.gather() for concurrent passengers
-- Checkpointing so sessions persist across conversations
+- Wrap the tools in an MCP server
+- LangSmith observability for prod
+- Run multiple passengers at once with async
+- Keep conversations between sessions
